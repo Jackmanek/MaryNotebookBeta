@@ -1,5 +1,6 @@
 package com.maryNotebook.maryNotebook.recuerdo.service;
 
+import com.maryNotebook.maryNotebook.recuerdo.dto.RecuerdoTimelineDTO;
 import com.maryNotebook.maryNotebook.recuerdo.entity.Recuerdo;
 import com.maryNotebook.maryNotebook.recuerdo.repository.RecuerdoRepository;
 import com.maryNotebook.maryNotebook.usuario.entity.Usuario;
@@ -35,7 +36,25 @@ public class RecuerdoService {
     public Optional<Recuerdo> obtenerRecuerdoPorId(Long id) {
         return recuerdoRepository.findById(id);
     }
+    public List<RecuerdoTimelineDTO> obtenerLineaTiempo(Usuario usuario, String etiqueta) {
+        List<Recuerdo> recuerdos;
 
+        if (etiqueta != null && !etiqueta.isEmpty()) {
+            recuerdos = listarRecuerdosPorEtiqueta(usuario, etiqueta);
+        } else {
+            recuerdos = listarRecuerdosPorUsuario(usuario);
+        }
+
+        return recuerdos.stream()
+                .map(r -> new RecuerdoTimelineDTO(
+                        r.getId(),
+                        r.getTexto(),
+                        r.getFecha(),
+                        r.getEtiquetas(),
+                        r.getImagen() != null ? r.getImagen() : null
+                ))
+                .toList();
+    }
 
     public void eliminarRecuerdo(Long id) {
         recuerdoRepository.deleteById(id);

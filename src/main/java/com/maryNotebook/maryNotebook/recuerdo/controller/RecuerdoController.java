@@ -1,5 +1,6 @@
 package com.maryNotebook.maryNotebook.recuerdo.controller;
 
+import com.maryNotebook.maryNotebook.recuerdo.dto.RecuerdoTimelineDTO;
 import com.maryNotebook.maryNotebook.recuerdo.entity.Recuerdo;
 import com.maryNotebook.maryNotebook.recuerdo.service.FileStorageService;
 import com.maryNotebook.maryNotebook.recuerdo.service.RecuerdoService;
@@ -82,6 +83,18 @@ public class RecuerdoController {
         return ResponseEntity.ok(r);
     }
 
+    @GetMapping("/timeline")
+    public ResponseEntity<List<RecuerdoTimelineDTO>> timeline(
+            Authentication auth,
+            @RequestParam(value = "etiqueta", required = false) String etiqueta) {
+
+        String email = auth.getName();
+        Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow();
+
+        List<RecuerdoTimelineDTO> timeline = recuerdoService.obtenerLineaTiempo(usuario, etiqueta);
+
+        return ResponseEntity.ok(timeline);
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarRecuerdo(@PathVariable Long id, Authentication auth) {
