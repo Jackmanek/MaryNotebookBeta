@@ -23,4 +23,13 @@ public class FileStorageService {
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
         return "/uploads/" + filename; // o devolver ruta completa si quieres
     }
+
+    public void eliminarArchivo(String nombreArchivo) {
+        try {
+            Path filePath = Paths.get(uploadDir).resolve(nombreArchivo).normalize();
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            throw new RuntimeException("No se pudo eliminar el archivo " + nombreArchivo, e);
+        }
+    }
 }

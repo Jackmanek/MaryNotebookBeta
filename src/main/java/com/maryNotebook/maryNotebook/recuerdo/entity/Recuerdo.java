@@ -2,6 +2,7 @@ package com.maryNotebook.maryNotebook.recuerdo.entity;
 
 import com.maryNotebook.maryNotebook.usuario.entity.Usuario;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ public class Recuerdo {
     private Long id;
 
     @Column(nullable = false, length = 2000)
+    @Size(max = 2000, message = "El texto no puede tener más de 2000 caracteres")
     private String texto;
 
     @Column(nullable = false)
@@ -29,9 +31,10 @@ public class Recuerdo {
     private String imagen; // puede ser URL o path en storage
 
     @ElementCollection
+    @Size(max = 10, message = "No puede tener más de 10 etiquetas")
     @CollectionTable(name = "recuerdo_etiquetas", joinColumns = @JoinColumn(name = "recuerdo_id"))
     @Column(name = "etiqueta")
-    private Set<String> etiquetas;
+    private Set<@Size(max = 30, message = "Cada etiqueta no puede tener más de 30 caracteres")String> etiquetas;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
