@@ -14,8 +14,9 @@ public interface RecuerdoRepository extends JpaRepository<Recuerdo, Long> {
     List<Recuerdo> findByUsuario(Usuario usuario);
 
     // Filtrar por etiqueta
-    @Query("SELECT r FROM Recuerdo r JOIN r.etiquetas e WHERE r.usuario = :usuario AND e = :etiqueta ORDER BY r.fecha DESC")
-    List<Recuerdo> findByUsuarioAndEtiqueta(@Param("usuario") Usuario usuario, @Param("etiqueta") String etiqueta);
+    @Query("SELECT r FROM Recuerdo r JOIN r.etiquetas e WHERE r.usuario = :usuario AND e.nombre = :nombreEtiqueta")
+    List<Recuerdo> findByUsuarioAndEtiqueta(@Param("usuario") Usuario usuario,
+                                            @Param("nombreEtiqueta") String nombreEtiqueta);
 
 
     // Ordenar todos los recuerdos de un usuario por fecha descendente

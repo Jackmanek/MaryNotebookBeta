@@ -1,5 +1,6 @@
 package com.maryNotebook.maryNotebook.recuerdo.service;
 
+import com.maryNotebook.maryNotebook.etiqueta.entity.Etiqueta;
 import com.maryNotebook.maryNotebook.recuerdo.dto.RecuerdoTimelineDTO;
 import com.maryNotebook.maryNotebook.recuerdo.entity.Recuerdo;
 import com.maryNotebook.maryNotebook.recuerdo.repository.RecuerdoRepository;
@@ -10,8 +11,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -48,12 +52,16 @@ public class RecuerdoService {
             recuerdos = listarRecuerdosPorUsuario(usuario);
         }
 
+
         return recuerdos.stream()
                 .map(r -> new RecuerdoTimelineDTO(
                         r.getId(),
                         r.getTexto(),
                         r.getFecha(),
-                        r.getEtiquetas(),
+                        r.getEtiquetas()
+                                .stream()
+                                .map(Etiqueta::getNombre)
+                                .collect(Collectors.toSet()),
                         r.getImagen() != null ? r.getImagen() : null
                 ))
                 .toList();
@@ -72,7 +80,10 @@ public class RecuerdoService {
                 r.getId(),
                 r.getTexto(),
                 r.getFecha(),
-                r.getEtiquetas(),
+                r.getEtiquetas()
+                        .stream()
+                        .map(Etiqueta::getNombre)
+                        .collect(Collectors.toSet()),
                 r.getImagen()
         ));
     }

@@ -1,11 +1,13 @@
 package com.maryNotebook.maryNotebook.recuerdo.entity;
 
+import com.maryNotebook.maryNotebook.etiqueta.entity.Etiqueta;
 import com.maryNotebook.maryNotebook.usuario.entity.Usuario;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.Set;
 
 
@@ -30,11 +32,13 @@ public class Recuerdo {
 
     private String imagen; // puede ser URL o path en storage
 
-    @ElementCollection
-    @Size(max = 10, message = "No puede tener más de 10 etiquetas")
-    @CollectionTable(name = "recuerdo_etiquetas", joinColumns = @JoinColumn(name = "recuerdo_id"))
-    @Column(name = "etiqueta")
-    private Set<@Size(max = 30, message = "Cada etiqueta no puede tener más de 30 caracteres")String> etiquetas;
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "recuerdo_etiqueta",
+            joinColumns = @JoinColumn(name = "recuerdo_id"),
+            inverseJoinColumns = @JoinColumn(name = "etiqueta_id")
+    )
+    private Set<Etiqueta> etiquetas = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
