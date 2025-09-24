@@ -1,5 +1,7 @@
 package com.maryNotebook.maryNotebook.recuerdo.controller;
 
+import com.maryNotebook.maryNotebook.etiqueta.entity.Etiqueta;
+import com.maryNotebook.maryNotebook.etiqueta.repository.EtiquetaRepository;
 import com.maryNotebook.maryNotebook.recuerdo.dto.RecuerdoTimelineDTO;
 import com.maryNotebook.maryNotebook.recuerdo.entity.Recuerdo;
 import com.maryNotebook.maryNotebook.recuerdo.service.FileStorageService;
@@ -20,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -32,15 +35,40 @@ public class RecuerdoController {
     private final RecuerdoService recuerdoService;
     private final UsuarioRepository usuarioRepository;
     private final FileStorageService fileStorageService;
+    private final EtiquetaRepository etiquetaRepository;
+
+
+    private Set<Etiqueta> procesarEtiquetas(List<String> etiquetas) {
+        Set<Etiqueta> etiquetasFinales = new HashSet<>();
+        if (etiquetas != null) {
+            for (String nombre : etiquetas) {
+                Etiqueta e = etiquetaRepository.findByNombre(nombre)
+                        .orElseGet(() -> etiquetaRepository.save(new Etiqueta(null, nombre, null)));
+                etiquetasFinales.add(e);
+            }
+        }
+        return etiquetasFinales;
+    }
 
     @PostMapping
     public ResponseEntity<Recuerdo> crearRecuerdo(@Valid @RequestBody Recuerdo recuerdo, Authentication auth) {
         String email = auth.getName();
         Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow();
         recuerdo.setUsuario(usuario);
+
+        // Procesar etiquetas recibidas
+        if (recuerdo.getEtiquetas() != null) {
+            Set<Etiqueta> etiquetasFinales = procesarEtiquetas(
+                    recuerdo.getEtiquetas().stream().map(Etiqueta::getNombre).toList()
+            );
+            recuerdo.setEtiquetas(etiquetasFinales);
+        }
+
         Recuerdo nuevo = recuerdoService.crearRecuerdo(recuerdo);
         return ResponseEntity.ok(nuevo);
     }
+
+    // 🔹 Crear recuerdo con imagen
     @PostMapping("/con-imagen")
     public ResponseEntity<Recuerdo> crearRecuerdoConImagen(
             @RequestParam("texto") String texto,
@@ -54,9 +82,7 @@ public class RecuerdoController {
         Recuerdo recuerdo = new Recuerdo();
         recuerdo.setTexto(texto);
         recuerdo.setUsuario(usuario);
-        if (etiquetas != null) {
-            recuerdo.setEtiquetas(Set.copyOf(etiquetas));
-        }
+        recuerdo.setEtiquetas(procesarEtiquetas(etiquetas));
 
         if (imagen != null && !imagen.isEmpty()) {
             String nombreArchivo = fileStorageService.guardarArchivo(imagen);
@@ -67,10 +93,13 @@ public class RecuerdoController {
         return ResponseEntity.ok(nuevo);
     }
 
+    // 🔹 Listar recuerdos (todos o filtrados por etiqueta)
     @GetMapping
-    public ResponseEntity<List<Recuerdo>> listarRecuerdos(Authentication auth, @RequestParam(required = false) String etiqueta) {
+    public ResponseEntity<List<Recuerdo>> listarRecuerdos(Authentication auth,
+                                                          @RequestParam(required = false) String etiqueta) {
         String email = auth.getName();
         Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow();
+
         List<Recuerdo> recuerdos;
         if (etiqueta != null && !etiqueta.isEmpty()) {
             recuerdos = recuerdoService.listarRecuerdosPorEtiqueta(usuario, etiqueta);
@@ -80,18 +109,19 @@ public class RecuerdoController {
         return ResponseEntity.ok(recuerdos);
     }
 
-
+    // 🔹 Obtener recuerdo por ID
     @GetMapping("/{id}")
     public ResponseEntity<Recuerdo> obtenerRecuerdo(@PathVariable Long id, Authentication auth) {
         Recuerdo r = recuerdoService.obtenerRecuerdoPorId(id).orElseThrow();
         if (!r.getUsuario().getEmail().equals(auth.getName())) {
-            return ResponseEntity.status(403).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         return ResponseEntity.ok(r);
     }
 
-    @GetMapping("/timeline")
-    public ResponseEntity<List<RecuerdoTimelineDTO>> timeline(
+    // 🔹 Timeline simple
+    @GetMapping("/timeline/simple")
+    public ResponseEntity<List<RecuerdoTimelineDTO>> timelineSimple(
             Authentication auth,
             @RequestParam(value = "etiqueta", required = false) String etiqueta) {
 
@@ -99,12 +129,12 @@ public class RecuerdoController {
         Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow();
 
         List<RecuerdoTimelineDTO> timeline = recuerdoService.obtenerLineaTiempo(usuario, etiqueta);
-
         return ResponseEntity.ok(timeline);
     }
 
+    // 🔹 Timeline paginado
     @GetMapping("/timeline")
-    public ResponseEntity<Page<RecuerdoTimelineDTO>> timeline(
+    public ResponseEntity<Page<RecuerdoTimelineDTO>> timelinePaginado(
             Authentication auth,
             @RequestParam(value = "etiqueta", required = false) String etiqueta,
             @PageableDefault(size = 10, sort = "fecha", direction = Sort.Direction.DESC) Pageable pageable) {
@@ -116,6 +146,7 @@ public class RecuerdoController {
         return ResponseEntity.ok(timeline);
     }
 
+    // 🔹 Actualizar recuerdo
     @PutMapping("/{id}")
     public ResponseEntity<Recuerdo> actualizarRecuerdo(
             @PathVariable Long id,
@@ -135,10 +166,7 @@ public class RecuerdoController {
         }
 
         recuerdo.setTexto(texto);
-
-        if (etiquetas != null) {
-            recuerdo.setEtiquetas(Set.copyOf(etiquetas));
-        }
+        recuerdo.setEtiquetas(procesarEtiquetas(etiquetas));
 
         if (imagen != null && !imagen.isEmpty()) {
             String nombreArchivo = fileStorageService.guardarArchivo(imagen);
@@ -149,11 +177,9 @@ public class RecuerdoController {
         return ResponseEntity.ok(actualizado);
     }
 
+    // 🔹 Eliminar imagen de un recuerdo
     @DeleteMapping("/{id}/imagen")
-    public ResponseEntity<Void> eliminarImagen(
-            @PathVariable Long id,
-            Authentication auth) {
-
+    public ResponseEntity<Void> eliminarImagen(@PathVariable Long id, Authentication auth) {
         String email = auth.getName();
         Usuario usuario = usuarioRepository.findByEmail(email).orElseThrow();
 
@@ -171,11 +197,12 @@ public class RecuerdoController {
         return ResponseEntity.noContent().build();
     }
 
+    // 🔹 Eliminar recuerdo completo
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarRecuerdo(@PathVariable Long id, Authentication auth) {
         Recuerdo r = recuerdoService.obtenerRecuerdoPorId(id).orElseThrow();
         if (!r.getUsuario().getEmail().equals(auth.getName())) {
-            return ResponseEntity.status(403).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
         recuerdoService.eliminarRecuerdo(id);
         return ResponseEntity.noContent().build();

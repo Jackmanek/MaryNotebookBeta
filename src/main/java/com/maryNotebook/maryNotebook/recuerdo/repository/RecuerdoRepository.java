@@ -11,18 +11,26 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 
 public interface RecuerdoRepository extends JpaRepository<Recuerdo, Long> {
-    List<Recuerdo> findByUsuario(Usuario usuario);
 
-    // Filtrar por etiqueta
-    @Query("SELECT r FROM Recuerdo r JOIN r.etiquetas e WHERE r.usuario = :usuario AND e.nombre = :nombreEtiqueta")
-    List<Recuerdo> findByUsuarioAndEtiqueta(@Param("usuario") Usuario usuario,
-                                            @Param("nombreEtiqueta") String nombreEtiqueta);
-
-
-    // Ordenar todos los recuerdos de un usuario por fecha descendente
+    // 🔹 Listar recuerdos de un usuario ordenados por fecha DESC
     List<Recuerdo> findByUsuarioOrderByFechaDesc(Usuario usuario);
 
-    Page<Recuerdo> findByUsuarioOrderByFechaDesc(Usuario usuario, Pageable pageable);
-    Page<Recuerdo> findByUsuarioAndEtiquetasContainingOrderByFechaDesc(Usuario usuario, String etiqueta, Pageable pageable);
+    // 🔹 Paginado: listar recuerdos de un usuario
+    Page<Recuerdo> findByUsuario(Usuario usuario, Pageable pageable);
+
+    // 🔹 Buscar recuerdos por etiqueta (sin paginar)
+    @Query("SELECT r FROM Recuerdo r JOIN r.etiquetas e " +
+            "WHERE r.usuario.id = :usuarioId AND e.nombre = :etiqueta " +
+            "ORDER BY r.fecha DESC")
+    List<Recuerdo> findByUsuarioAndEtiqueta(@Param("usuarioId") Long usuarioId,
+                                            @Param("etiqueta") String etiqueta);
+
+    // 🔹 Buscar recuerdos por etiqueta (paginado)
+    @Query("SELECT r FROM Recuerdo r JOIN r.etiquetas e " +
+            "WHERE r.usuario.id = :usuarioId AND e.nombre = :etiqueta " +
+            "ORDER BY r.fecha DESC")
+    Page<Recuerdo> findByUsuarioAndEtiqueta(@Param("usuarioId") Long usuarioId,
+                                            @Param("etiqueta") String etiqueta,
+                                            Pageable pageable);
 
 }

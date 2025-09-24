@@ -1,6 +1,7 @@
 package com.maryNotebook.maryNotebook.recuerdo.service;
 
 import com.maryNotebook.maryNotebook.etiqueta.entity.Etiqueta;
+import com.maryNotebook.maryNotebook.etiqueta.repository.EtiquetaRepository;
 import com.maryNotebook.maryNotebook.recuerdo.dto.RecuerdoTimelineDTO;
 import com.maryNotebook.maryNotebook.recuerdo.entity.Recuerdo;
 import com.maryNotebook.maryNotebook.recuerdo.repository.RecuerdoRepository;
@@ -21,28 +22,52 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RecuerdoService {
 
-
     private final RecuerdoRepository recuerdoRepository;
+    private final EtiquetaRepository etiquetaRepository;
 
-
+    // 🔹 Crear o actualizar un recuerdo
     public Recuerdo crearRecuerdo(Recuerdo recuerdo) {
-        recuerdo.setFecha(LocalDateTime.now());
+        // Validar etiquetas
+        Set<Etiqueta> etiquetasFinales = new HashSet<>();
+        if (recuerdo.getEtiquetas() != null) {
+            for (Etiqueta etiqueta : recuerdo.getEtiquetas()) {
+                Etiqueta e = etiquetaRepository.findByNombre(etiqueta.getNombre())
+                        .orElseGet(() -> etiquetaRepository.save(
+                                new Etiqueta(null, etiqueta.getNombre(), new HashSet<>())));
+                etiquetasFinales.add(e);
+            }
+        }
+        recuerdo.setEtiquetas(etiquetasFinales);
+
+        // Si no tiene fecha, asignamos ahora
+        if (recuerdo.getFecha() == null) {
+            recuerdo.setFecha(LocalDateTime.now());
+        }
+
         return recuerdoRepository.save(recuerdo);
     }
 
-
+    // 🔹 Listar recuerdos de un usuario
     public List<Recuerdo> listarRecuerdosPorUsuario(Usuario usuario) {
         return recuerdoRepository.findByUsuarioOrderByFechaDesc(usuario);
     }
 
+    // 🔹 Listar recuerdos de un usuario por etiqueta
     public List<Recuerdo> listarRecuerdosPorEtiqueta(Usuario usuario, String etiqueta) {
-        return recuerdoRepository.findByUsuarioAndEtiqueta(usuario, etiqueta);
+        return recuerdoRepository.findByUsuarioAndEtiqueta(usuario.getId(), etiqueta);
     }
 
+    // 🔹 Obtener recuerdo por id
     public Optional<Recuerdo> obtenerRecuerdoPorId(Long id) {
         return recuerdoRepository.findById(id);
     }
 
+    // 🔹 Eliminar recuerdo
+    public void eliminarRecuerdo(Long id) {
+        recuerdoRepository.deleteById(id);
+    }
+
+    // 🔹 Timeline no paginado
     public List<RecuerdoTimelineDTO> obtenerLineaTiempo(Usuario usuario, String etiqueta) {
         List<Recuerdo> recuerdos;
 
@@ -52,43 +77,33 @@ public class RecuerdoService {
             recuerdos = listarRecuerdosPorUsuario(usuario);
         }
 
-
         return recuerdos.stream()
                 .map(r -> new RecuerdoTimelineDTO(
                         r.getId(),
                         r.getTexto(),
                         r.getFecha(),
-                        r.getEtiquetas()
-                                .stream()
-                                .map(Etiqueta::getNombre)
-                                .collect(Collectors.toSet()),
-                        r.getImagen() != null ? r.getImagen() : null
+                        r.getEtiquetas().stream().map(Etiqueta::getNombre).collect(Collectors.toSet()),
+                        r.getImagen()
                 ))
                 .toList();
     }
 
+    // 🔹 Timeline paginado
     public Page<RecuerdoTimelineDTO> obtenerLineaTiempo(Usuario usuario, String etiqueta, Pageable pageable) {
         Page<Recuerdo> recuerdos;
 
         if (etiqueta != null && !etiqueta.isEmpty()) {
-            recuerdos = recuerdoRepository.findByUsuarioAndEtiquetasContainingOrderByFechaDesc(usuario, etiqueta, pageable);
+            recuerdos = recuerdoRepository.findByUsuarioAndEtiqueta(usuario.getId(), etiqueta, pageable);
         } else {
-            recuerdos = recuerdoRepository.findByUsuarioOrderByFechaDesc(usuario, pageable);
+            recuerdos = recuerdoRepository.findByUsuario(usuario, pageable);
         }
 
         return recuerdos.map(r -> new RecuerdoTimelineDTO(
                 r.getId(),
                 r.getTexto(),
                 r.getFecha(),
-                r.getEtiquetas()
-                        .stream()
-                        .map(Etiqueta::getNombre)
-                        .collect(Collectors.toSet()),
+                r.getEtiquetas().stream().map(Etiqueta::getNombre).collect(Collectors.toSet()),
                 r.getImagen()
         ));
-    }
-
-    public void eliminarRecuerdo(Long id) {
-        recuerdoRepository.deleteById(id);
     }
 }
