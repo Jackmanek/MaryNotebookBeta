@@ -106,4 +106,18 @@ public class RecuerdoService {
                 r.getImagen()
         ));
     }
+
+    // ✅ NUEVO: Obtener feed público
+    public List<Recuerdo> obtenerFeedPublico() {
+        return recuerdoRepository.findByVisibilidadOrderByFechaDesc(Recuerdo.Visibilidad.PUBLICO);
+    }
+
+    public Page<Recuerdo> obtenerFeedPublico(Pageable pageable) {
+        return recuerdoRepository.findByVisibilidadOrderByFechaDesc(Recuerdo.Visibilidad.PUBLICO, pageable);
+    }
+
+    // ✅ NUEVO: Feed público filtrado por etiqueta
+    public List<Recuerdo> obtenerFeedPublicoPorEtiqueta(String etiqueta) {
+        return recuerdoRepository.findByVisibilidadAndEtiqueta(Recuerdo.Visibilidad.PUBLICO, etiqueta);
+    }
 }

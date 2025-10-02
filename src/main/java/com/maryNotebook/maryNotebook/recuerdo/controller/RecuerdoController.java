@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/recuerdos")
@@ -39,15 +40,19 @@ public class RecuerdoController {
 
 
     private Set<Etiqueta> procesarEtiquetas(List<String> etiquetas) {
-        Set<Etiqueta> etiquetasFinales = new HashSet<>();
-        if (etiquetas != null) {
-            for (String nombre : etiquetas) {
-                Etiqueta e = etiquetaRepository.findByNombre(nombre)
-                        .orElseGet(() -> etiquetaRepository.save(new Etiqueta(null, nombre, null)));
-                etiquetasFinales.add(e);
-            }
+        if (etiquetas == null  || etiquetas.isEmpty()) {
+            return new HashSet<>();
         }
-        return etiquetasFinales;
+
+        return etiquetas.stream()
+                .filter(nombre -> nombre != null && !nombre.trim().isEmpty())
+                .map(nombre ->etiquetaRepository.findByNombre(nombre.trim())
+                        .orElseGet(()->{
+                            Etiqueta nueva = new Etiqueta();
+                            nueva.setNombre(nombre.trim());
+                            return etiquetaRepository.save(nueva);
+                        }))
+                .collect(Collectors.toSet());
     }
 
     @PostMapping
@@ -74,6 +79,7 @@ public class RecuerdoController {
             @RequestParam("texto") String texto,
             @RequestParam(value = "etiquetas", required = false) List<String> etiquetas,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen,
+            @RequestParam(value = "visibilidad", defaultValue = "PRIVADO") String visibilidad, // ✅ NUEVO
             Authentication auth) throws IOException {
 
         String email = auth.getName();
@@ -83,6 +89,12 @@ public class RecuerdoController {
         recuerdo.setTexto(texto);
         recuerdo.setUsuario(usuario);
         recuerdo.setEtiquetas(procesarEtiquetas(etiquetas));
+
+        try {
+            recuerdo.setVisibilidad(Recuerdo.Visibilidad.valueOf(visibilidad.toUpperCase()));
+        } catch (IllegalArgumentException e) {
+            recuerdo.setVisibilidad(Recuerdo.Visibilidad.PRIVADO);
+        }
 
         if (imagen != null && !imagen.isEmpty()) {
             String nombreArchivo = fileStorageService.guardarArchivo(imagen);
@@ -206,5 +218,28 @@ public class RecuerdoController {
         }
         recuerdoService.eliminarRecuerdo(id);
         return ResponseEntity.noContent().build();
+    }
+
+    // ✅ NUEVO: Feed público (home general) - SIN autenticación requerida
+    @GetMapping("/publicos")
+    public ResponseEntity<List<Recuerdo>> obtenerRecuerdosPublicos(
+            @RequestParam(required = false) String etiqueta) {
+
+        List<Recuerdo> recuerdos;
+        if (etiqueta != null && !etiqueta.isEmpty()) {
+            recuerdos = recuerdoService.obtenerFeedPublicoPorEtiqueta(etiqueta);
+        } else {
+            recuerdos = recuerdoService.obtenerFeedPublico();
+        }
+        return ResponseEntity.ok(recuerdos);
+    }
+
+    // ✅ NUEVO: Feed público paginado
+    @GetMapping("/publicos/paginado")
+    public ResponseEntity<Page<Recuerdo>> obtenerRecuerdosPublicosPaginado(
+            @PageableDefault(size = 10, sort = "fecha", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<Recuerdo> recuerdos = recuerdoService.obtenerFeedPublico(pageable);
+        return ResponseEntity.ok(recuerdos);
     }
 }

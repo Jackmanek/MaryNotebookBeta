@@ -1,5 +1,7 @@
 package com.maryNotebook.maryNotebook.recuerdo.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.maryNotebook.maryNotebook.etiqueta.entity.Etiqueta;
 import com.maryNotebook.maryNotebook.usuario.entity.Usuario;
 import jakarta.persistence.*;
@@ -17,6 +19,8 @@ import java.util.Set;
 @AllArgsConstructor
 @Entity
 @Table(name = "recuerdos")
+@EqualsAndHashCode(exclude = {"etiquetas", "usuario"})  // ✅ AÑADIR ESTO
+@ToString(exclude = {"etiquetas", "usuario"})
 public class Recuerdo {
 
     @Id
@@ -32,15 +36,29 @@ public class Recuerdo {
 
     private String imagen; // puede ser URL o path en storage
 
+    // ✅ NUEVO: Campo de visibilidad
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    @Builder.Default
+    private Visibilidad visibilidad = Visibilidad.PRIVADO;
+
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinTable(
             name = "recuerdo_etiqueta",
             joinColumns = @JoinColumn(name = "recuerdo_id"),
             inverseJoinColumns = @JoinColumn(name = "etiqueta_id")
     )
+    @JsonIgnoreProperties("recuerdos")
     private Set<Etiqueta> etiquetas = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
+    @JsonIgnore
     private Usuario usuario;
+
+    // ✅ NUEVO: Enum de visibilidad
+    public enum Visibilidad {
+        PRIVADO,  // Solo el dueño lo ve
+        PUBLICO   // Todos lo ven en el home
+    }
 }

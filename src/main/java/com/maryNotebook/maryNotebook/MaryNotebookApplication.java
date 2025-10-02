@@ -24,9 +24,13 @@ public class MaryNotebookApplication {
 
 			String pass = "quieroser12";
 
-			Usuario u = new Usuario(1L,"Mari","mari@gmail.com",encoder.encode(pass), LocalDateTime.now(), Usuario.Rol.USER);
-
-			//usuarioRepository.save(u);
+			Usuario u = new Usuario();
+			u.setNombre("Mari");
+			u.setEmail("mari@gmail.com");
+			u.setPassword(encoder.encode(pass));
+			u.setFechaRegistro(LocalDateTime.now());
+			u.setRol(Usuario.Rol.USER);
+			usuarioRepository.save(u);
 
 		};
 	}
