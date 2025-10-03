@@ -165,6 +165,7 @@ public class RecuerdoController {
             @RequestParam("texto") String texto,
             @RequestParam(value = "etiquetas", required = false) List<String> etiquetas,
             @RequestParam(value = "imagen", required = false) MultipartFile imagen,
+            @RequestParam(value = "visibilidad" , required = false) String visibilidad,
             Authentication auth) throws IOException {
 
         String email = auth.getName();
@@ -179,6 +180,15 @@ public class RecuerdoController {
 
         recuerdo.setTexto(texto);
         recuerdo.setEtiquetas(procesarEtiquetas(etiquetas));
+
+        // ✅ NUEVO: Actualizar visibilidad si se proporciona
+        if (visibilidad != null && !visibilidad.isEmpty()) {
+            try {
+                recuerdo.setVisibilidad(Recuerdo.Visibilidad.valueOf(visibilidad.toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                // Si el valor no es válido, mantiene la visibilidad actual
+            }
+        }
 
         if (imagen != null && !imagen.isEmpty()) {
             String nombreArchivo = fileStorageService.guardarArchivo(imagen);

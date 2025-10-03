@@ -83,7 +83,8 @@ public class RecuerdoService {
                         r.getTexto(),
                         r.getFecha(),
                         r.getEtiquetas().stream().map(Etiqueta::getNombre).collect(Collectors.toSet()),
-                        r.getImagen()
+                        r.getImagen(),
+                        r.getVisibilidad()
                 ))
                 .toList();
     }
@@ -103,7 +104,8 @@ public class RecuerdoService {
                 r.getTexto(),
                 r.getFecha(),
                 r.getEtiquetas().stream().map(Etiqueta::getNombre).collect(Collectors.toSet()),
-                r.getImagen()
+                r.getImagen(),
+                r.getVisibilidad()
         ));
     }
 

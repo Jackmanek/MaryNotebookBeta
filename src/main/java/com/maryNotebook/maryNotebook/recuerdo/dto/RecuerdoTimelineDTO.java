@@ -1,5 +1,6 @@
 package com.maryNotebook.maryNotebook.recuerdo.dto;
 
+import com.maryNotebook.maryNotebook.recuerdo.entity.Recuerdo;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -14,4 +15,5 @@ public class RecuerdoTimelineDTO {
     private LocalDateTime fecha;
     private Set<String> etiquetas;
     private String imagenUrl;
+    private Recuerdo.Visibilidad visibilidad;
 }
