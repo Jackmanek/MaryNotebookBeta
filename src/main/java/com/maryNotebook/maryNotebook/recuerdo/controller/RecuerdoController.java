@@ -97,8 +97,8 @@ public class RecuerdoController {
         }
 
         if (imagen != null && !imagen.isEmpty()) {
-            String nombreArchivo = fileStorageService.guardarArchivo(imagen);
-            recuerdo.setImagen(nombreArchivo);
+            String urlImagen = fileStorageService.guardarArchivo(imagen);
+            recuerdo.setImagen(urlImagen);
         }
 
         Recuerdo nuevo = recuerdoService.crearRecuerdo(recuerdo);
