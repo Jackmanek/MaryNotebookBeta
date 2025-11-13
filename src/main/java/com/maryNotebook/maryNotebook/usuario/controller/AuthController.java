@@ -48,6 +48,6 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(dto.getEmail(), dto.getPassword())
         );
         Usuario u = usuarioRepository.findByEmail(dto.getEmail()).orElseThrow();
-        return jwtUtil.generarToken(u.getEmail(), u.getRol().name());
+        return jwtUtil.generarToken(u.getEmail(), u.getRol().name(), u.getNombre());
     }
 }

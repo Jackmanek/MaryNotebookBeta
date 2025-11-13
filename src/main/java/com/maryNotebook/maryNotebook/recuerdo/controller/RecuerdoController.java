@@ -211,7 +211,6 @@ public class RecuerdoController {
         if (!recuerdo.getUsuario().getId().equals(usuario.getId())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "No puedes modificar este recuerdo");
         }
-
         fileStorageService.eliminarArchivo(recuerdo.getImagen());
         recuerdo.setImagen(null);
         recuerdoService.crearRecuerdo(recuerdo);
