@@ -2,6 +2,7 @@ package com.maryNotebook.maryNotebook.recuerdo.controller;
 
 import com.maryNotebook.maryNotebook.etiqueta.entity.Etiqueta;
 import com.maryNotebook.maryNotebook.etiqueta.repository.EtiquetaRepository;
+import com.maryNotebook.maryNotebook.recuerdo.dto.RecuerdoPublicoDto;
 import com.maryNotebook.maryNotebook.recuerdo.dto.RecuerdoTimelineDTO;
 import com.maryNotebook.maryNotebook.recuerdo.entity.Recuerdo;
 import com.maryNotebook.maryNotebook.recuerdo.service.FileStorageService;
@@ -244,11 +245,13 @@ public class RecuerdoController {
     }
 
     // ✅ NUEVO: Feed público paginado
+
     @GetMapping("/publicos/paginado")
-    public ResponseEntity<Page<Recuerdo>> obtenerRecuerdosPublicosPaginado(
+    public ResponseEntity<Page<RecuerdoPublicoDto>> obtenerRecuerdosPublicosPaginado(
             @PageableDefault(size = 10, sort = "fecha", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<Recuerdo> recuerdos = recuerdoService.obtenerFeedPublico(pageable);
+        Page<RecuerdoPublicoDto> recuerdos = recuerdoService.obtenerFeedPublico(pageable);
         return ResponseEntity.ok(recuerdos);
     }
+
 }

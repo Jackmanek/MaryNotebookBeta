@@ -2,6 +2,7 @@ package com.maryNotebook.maryNotebook.recuerdo.service;
 
 import com.maryNotebook.maryNotebook.etiqueta.entity.Etiqueta;
 import com.maryNotebook.maryNotebook.etiqueta.repository.EtiquetaRepository;
+import com.maryNotebook.maryNotebook.recuerdo.dto.RecuerdoPublicoDto;
 import com.maryNotebook.maryNotebook.recuerdo.dto.RecuerdoTimelineDTO;
 import com.maryNotebook.maryNotebook.recuerdo.entity.Recuerdo;
 import com.maryNotebook.maryNotebook.recuerdo.repository.RecuerdoRepository;
@@ -114,8 +115,22 @@ public class RecuerdoService {
         return recuerdoRepository.findByVisibilidadOrderByFechaDesc(Recuerdo.Visibilidad.PUBLICO);
     }
 
-    public Page<Recuerdo> obtenerFeedPublico(Pageable pageable) {
-        return recuerdoRepository.findByVisibilidadOrderByFechaDesc(Recuerdo.Visibilidad.PUBLICO, pageable);
+    public Page<RecuerdoPublicoDto> obtenerFeedPublico(Pageable pageable) {
+
+        Page<Recuerdo> recuerdos = recuerdoRepository.findByVisibilidadOrderByFechaDesc(
+                Recuerdo.Visibilidad.PUBLICO,
+                pageable
+        );
+
+        return recuerdos.map(r -> new RecuerdoPublicoDto(
+                r.getId(),
+                r.getTexto(),
+                r.getFecha(),
+                r.getImagen(),
+                r.getVisibilidad().name(),
+                r.getEtiquetas().stream().map(Etiqueta::getNombre).collect(Collectors.toSet()),
+                r.getUsuario().getNombre()
+        ));
     }
 
     // ✅ NUEVO: Feed público filtrado por etiqueta
