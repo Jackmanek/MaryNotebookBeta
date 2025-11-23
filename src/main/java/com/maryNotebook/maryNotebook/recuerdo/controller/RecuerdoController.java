@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -180,7 +181,19 @@ public class RecuerdoController {
         }
 
         recuerdo.setTexto(texto);
-        recuerdo.setEtiquetas(procesarEtiquetas(etiquetas));
+        if (etiquetas != null) {
+
+            // Caso 1: usuario borró todas las etiquetas → lista vacía
+            if (etiquetas.isEmpty()) {
+                recuerdo.setEtiquetas(new HashSet<>());  // Set vacío
+            }
+
+            // Caso 2: usuario escribió etiquetas nuevas
+            else {
+                Set<Etiqueta> nuevas = new HashSet<>(procesarEtiquetas(etiquetas));
+                recuerdo.setEtiquetas(nuevas);
+            }
+        }
 
         // ✅ NUEVO: Actualizar visibilidad si se proporciona
         if (visibilidad != null && !visibilidad.isEmpty()) {
