@@ -14,6 +14,6 @@ public class RecuerdoTimelineDTO {
     private String texto;
     private LocalDateTime fecha;
     private Set<String> etiquetas;
-    private String imagenUrl;
+    private String imagen;
     private Recuerdo.Visibilidad visibilidad;
 }

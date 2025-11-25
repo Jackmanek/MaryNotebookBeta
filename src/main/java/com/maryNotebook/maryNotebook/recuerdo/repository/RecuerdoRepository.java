@@ -47,4 +47,13 @@ public interface RecuerdoRepository extends JpaRepository<Recuerdo, Long> {
             @Param("visibilidad") Recuerdo.Visibilidad visibilidad,
             @Param("etiqueta") String etiqueta
     );
+
+    @Query("SELECT r FROM Recuerdo r JOIN r.etiquetas e " +
+            "WHERE r.visibilidad = :visibilidad AND e.nombre = :etiqueta " +
+            "ORDER BY r.fecha DESC")
+    Page<Recuerdo> findByVisibilidadAndEtiqueta(
+            @Param("visibilidad") Recuerdo.Visibilidad visibilidad,
+            @Param("etiqueta") String etiqueta,
+            Pageable pageable
+    );
 }

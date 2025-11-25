@@ -115,13 +115,26 @@ public class RecuerdoService {
         return recuerdoRepository.findByVisibilidadOrderByFechaDesc(Recuerdo.Visibilidad.PUBLICO);
     }
 
-    public Page<RecuerdoPublicoDto> obtenerFeedPublico(Pageable pageable) {
+    public Page<RecuerdoPublicoDto> obtenerFeedPublico(String etiqueta, Pageable pageable) {
 
-        Page<Recuerdo> recuerdos = recuerdoRepository.findByVisibilidadOrderByFechaDesc(
-                Recuerdo.Visibilidad.PUBLICO,
-                pageable
-        );
+        Page<Recuerdo> recuerdos;
 
+        if (etiqueta != null && !etiqueta.isBlank()) {
+            // 🔹 Filtrar por etiqueta (paginado)
+            recuerdos = recuerdoRepository.findByVisibilidadAndEtiqueta(
+                    Recuerdo.Visibilidad.PUBLICO,
+                    etiqueta,
+                    pageable
+            );
+        } else {
+            // 🔹 Sin filtro → todo el feed público
+            recuerdos = recuerdoRepository.findByVisibilidadOrderByFechaDesc(
+                    Recuerdo.Visibilidad.PUBLICO,
+                    pageable
+            );
+        }
+
+        // 🔹 Convertir a DTO
         return recuerdos.map(r -> new RecuerdoPublicoDto(
                 r.getId(),
                 r.getTexto(),

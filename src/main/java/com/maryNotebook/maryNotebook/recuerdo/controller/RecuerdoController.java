@@ -130,6 +130,8 @@ public class RecuerdoController {
         if (!r.getUsuario().getEmail().equals(auth.getName())) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
+
+
         return ResponseEntity.ok(r);
     }
 
@@ -159,6 +161,18 @@ public class RecuerdoController {
         Page<RecuerdoTimelineDTO> timeline = recuerdoService.obtenerLineaTiempo(usuario, etiqueta, pageable);
         return ResponseEntity.ok(timeline);
     }
+
+    // ✅ NUEVO: Feed público paginado
+
+    @GetMapping("/publicos/paginado")
+    public ResponseEntity<Page<RecuerdoPublicoDto>> obtenerRecuerdosPublicosPaginado(
+            @RequestParam(value = "etiqueta", required = false) String etiqueta,
+            @PageableDefault(size = 10, sort = "fecha", direction = Sort.Direction.DESC) Pageable pageable) {
+
+        Page<RecuerdoPublicoDto> recuerdos = recuerdoService.obtenerFeedPublico(etiqueta, pageable);
+        return ResponseEntity.ok(recuerdos);
+    }
+
 
     // 🔹 Actualizar recuerdo
     @PutMapping("/{id}")
@@ -254,16 +268,6 @@ public class RecuerdoController {
         } else {
             recuerdos = recuerdoService.obtenerFeedPublico();
         }
-        return ResponseEntity.ok(recuerdos);
-    }
-
-    // ✅ NUEVO: Feed público paginado
-
-    @GetMapping("/publicos/paginado")
-    public ResponseEntity<Page<RecuerdoPublicoDto>> obtenerRecuerdosPublicosPaginado(
-            @PageableDefault(size = 10, sort = "fecha", direction = Sort.Direction.DESC) Pageable pageable) {
-
-        Page<RecuerdoPublicoDto> recuerdos = recuerdoService.obtenerFeedPublico(pageable);
         return ResponseEntity.ok(recuerdos);
     }
 
