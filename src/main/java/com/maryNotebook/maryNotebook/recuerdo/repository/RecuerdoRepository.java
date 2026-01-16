@@ -56,4 +56,7 @@ public interface RecuerdoRepository extends JpaRepository<Recuerdo, Long> {
             @Param("etiqueta") String etiqueta,
             Pageable pageable
     );
+    List<Recuerdo> findAllByOrderByFechaDesc();
+    List<Recuerdo> findByUsuarioIdOrderByFechaDesc(Long usuarioId);
+    long countByVisibilidad(Recuerdo.Visibilidad visibilidad);
 }

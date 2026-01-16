@@ -38,8 +38,12 @@ public class Usuario {
     @Column(name = "fecha_registro")
     private LocalDateTime fechaRegistro;
 
+    @Column
+    private boolean activo;
+
     @Enumerated(EnumType.STRING)
     private Rol rol;
+
 
     public enum Rol {
         USER, ADMIN
