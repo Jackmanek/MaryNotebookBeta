@@ -1,9 +1,12 @@
 package com.maryNotebook.maryNotebook.usuario.dto;
 
+import com.maryNotebook.maryNotebook.usuario.entity.Usuario;
+
 public class RegistroUsuarioDTO {
     private String nombre;
     private String email;
     private String password;
+    private Usuario.Rol rol;
 
     public RegistroUsuarioDTO() {
     }
@@ -36,5 +39,13 @@ public class RegistroUsuarioDTO {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Usuario.Rol getRol() {
+        return rol;
+    }
+
+    public void setRol(Usuario.Rol rol) {
+        this.rol = rol;
     }
 }

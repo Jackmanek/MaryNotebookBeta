@@ -172,4 +172,30 @@ public class RecuerdoService {
     public long contarRecuerdosPublicos() {
         return recuerdoRepository.countByVisibilidad(Recuerdo.Visibilidad.PUBLICO);
     }
+
+    private RecuerdoTimelineDTO convertirATimelineDTO(Recuerdo recuerdo) {
+        RecuerdoTimelineDTO dto = new RecuerdoTimelineDTO();
+        dto.setId(recuerdo.getId());
+        dto.setTexto(recuerdo.getTexto());
+        dto.setFecha(recuerdo.getFecha());
+        dto.setImagen(recuerdo.getImagen());
+        dto.setVisibilidad(recuerdo.getVisibilidad());
+
+        // ✅ CORREGIDO: Convertir Set<Etiqueta> a Set<String>
+        if (recuerdo.getEtiquetas() != null) {
+            dto.setEtiquetas(
+                    recuerdo.getEtiquetas().stream()
+                            .map(Etiqueta::getNombre)
+                            .collect(Collectors.toSet())
+            );
+        }
+
+        // Añadir información del usuario
+        if (recuerdo.getUsuario() != null) {
+            dto.setNombreUsuario(recuerdo.getUsuario().getNombre());
+            dto.setUsuarioId(recuerdo.getUsuario().getId());
+        }
+
+        return dto;
+    }
 }

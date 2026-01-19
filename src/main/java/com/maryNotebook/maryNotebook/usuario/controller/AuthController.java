@@ -36,7 +36,7 @@ public class AuthController {
         u.setNombre(dto.getNombre());
         u.setEmail(dto.getEmail());
         u.setPassword(passwordEncoder.encode(dto.getPassword()));
-        u.setRol(Usuario.Rol.USER); // rol por defecto
+        u.setRol(dto.getRol()); // rol por defecto
         usuarioRepository.save(u);
         return "Usuario registrado correctamente";
     }
