@@ -39,4 +39,19 @@ public class UsuarioService {
     public Optional<Usuario> buscarPorEmail(String email) {
         return usuarioRepository.findByEmail(email);
     }
+
+    public Optional<Usuario> toggleEstado(Long id) {
+        return usuarioRepository.findById(id).map(usuario -> {
+            usuario.setActivo(!usuario.isActivo());
+            return usuarioRepository.save(usuario);
+        });
+    }
+
+    public long contarUsuarios() {
+        return usuarioRepository.count();
+    }
+
+    public long contarUsuariosActivos() {
+        return usuarioRepository.countByActivoTrue();
+    }
 }
