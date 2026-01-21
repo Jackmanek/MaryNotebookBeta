@@ -13,15 +13,20 @@ FROM amazoncorretto:22-alpine
 WORKDIR /app
 
 # crear usuario
-RUN addgroup appgroup && adduser -S appuser -G appgroup && \
-    mkdir -p /app/uploads && \
-    chown appuser:appgroup /app/uploads
+RUN addgroup -g 1000 appgroup && \
+    adduser -D -u 1000 -G appgroup appuser && \
+    mkdir -p /uploads /app/wallet && \
+    chown -R appuser:appgroup /uploads /app
+
+COPY --chown=appuser:appgroup wallet/ /app/wallet/
+
 USER appuser
 
-COPY --from=builder /app/target/*.jar app.jar
+COPY --from=builder /app/target/*.jar /app/app.jar
 
 EXPOSE 8080
 
 ENV SPRING_PROFILES_ACTIVE=prod
+ENV FILE_UPLOAD_DIR=/uploads
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]

@@ -69,16 +69,36 @@ public class SecurityConfig {
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:8100")); // 👈 O "*", si estás probando
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
-        configuration.setAllowCredentials(true); // Si usas cookies / sesiones
+    CorsConfiguration configuration = new CorsConfiguration();
+    
+    // ✅ Añade AMBOS: localhost Y 127.0.0.1
+    configuration.setAllowedOriginPatterns(List.of(
+	"http://localhost",
+        "http://localhost:*",
+	"http://127.0.0.1",
+        "http://127.0.0.1:*",
+        "http://192.168.*.*:*",
+        "http://172.19.*.*:*",
+	"https://marymemories.es",
+	"https://www.marymemories.es",
+	"https://api.marymemories.es",
+        "capacitor://localhost",
+        "ionic://localhost"
+    ));
+    
+    configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+    
+    // ✅ Solo UNA llamada a setAllowedHeaders con todos los headers
+    configuration.setAllowedHeaders(List.of("*"));
+    
+    // ✅ Importante: permite que el frontend lea estos headers de la respuesta
+    configuration.setExposedHeaders(List.of("Authorization", "Content-Type"));
+    
+    configuration.setAllowCredentials(true);
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", configuration);
+    return source;
+}
 
 }

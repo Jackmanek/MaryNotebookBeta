@@ -1,5 +1,7 @@
 package com.maryNotebook.maryNotebook.recuerdo.service;
 
+import jakarta.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -9,15 +11,23 @@ import java.nio.file.*;
 @Service
 public class FileStorageService {
 
-    private final Path rootLocation = Paths.get("uploads");
+    private final Path rootLocation;
+
+    public FileStorageService(
+            @Value("${file.upload-dir:/uploads}") String uploadDir
+    ) {
+        this.rootLocation = Paths.get(uploadDir);
+    }
+
+    @PostConstruct
+    public void init() throws IOException {
+        Files.createDirectories(rootLocation);
+    }
 
     public String guardarArchivo(MultipartFile archivo) throws IOException {
         if (archivo.isEmpty()) {
             throw new IOException("El archivo está vacío");
         }
-
-        // Asegurarse de que la carpeta exista
-        Files.createDirectories(rootLocation);
 
         String nombreArchivo = System.currentTimeMillis() + "_" + archivo.getOriginalFilename();
         Path destino = rootLocation.resolve(nombreArchivo);
@@ -28,15 +38,11 @@ public class FileStorageService {
         return "/images/" + nombreArchivo;
     }
 
-    public void eliminarArchivo(String nombreArchivo) {
-        if (nombreArchivo == null) return;
+    public void eliminarArchivo(String imagenPath) {
+        if (imagenPath == null) return;
         try {
-            Path archivo = rootLocation.resolve(
-                    nombreArchivo.replace("/images/", "")
-            );
-            Files.deleteIfExists(archivo);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            String nombreArchivo = imagenPath.replace("/images/","");
+            Files.deleteIfExists(rootLocation.resolve(nombreArchivo));
+        } catch (IOException ignored) {}
     }
 }
