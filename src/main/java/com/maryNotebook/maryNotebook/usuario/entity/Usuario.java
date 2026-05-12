@@ -56,9 +56,10 @@ public class Usuario {
     @PrePersist
     protected void onCreate() {
         fechaRegistro = LocalDateTime.now();
-        if (activo == false) {
-            activo = true;
+        if (rol == null) {
+            rol = Rol.USER;
         }
+        activo = false;
     }
 
     public enum Rol {

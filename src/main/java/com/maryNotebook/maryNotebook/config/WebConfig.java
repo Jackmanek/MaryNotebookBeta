@@ -12,7 +12,7 @@ import java.nio.file.Paths;
 public class WebConfig implements WebMvcConfigurer {
 
 
-    @Value("${file.upload-dir:/uploads}")
+    @Value("${marynotebook.upload-dir:uploads}")
     private String uploadDir;
 
     @Override

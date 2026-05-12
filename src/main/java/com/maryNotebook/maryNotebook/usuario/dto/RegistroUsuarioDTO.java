@@ -6,7 +6,6 @@ public class RegistroUsuarioDTO {
     private String nombre;
     private String email;
     private String password;
-    private Usuario.Rol rol;
 
     public RegistroUsuarioDTO() {
     }
@@ -41,11 +40,4 @@ public class RegistroUsuarioDTO {
         this.password = password;
     }
 
-    public Usuario.Rol getRol() {
-        return rol;
-    }
-
-    public void setRol(Usuario.Rol rol) {
-        this.rol = rol;
-    }
 }

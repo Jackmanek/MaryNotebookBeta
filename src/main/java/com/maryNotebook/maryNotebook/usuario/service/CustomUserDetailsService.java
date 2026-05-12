@@ -25,6 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
                 .username(usuario.getEmail())
                 .password(usuario.getPassword())
                 .roles(usuario.getRol().name()) // más adelante podrías meter roles reales desde la BD
+                .disabled(!usuario.isActivo())
                 .build();
     }
 }
