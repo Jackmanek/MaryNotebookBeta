@@ -29,6 +29,7 @@ public class MaryNotebookApplication {
 			u.setEmail("mari@gmail.com");
 			u.setPassword(encoder.encode(pass));
 			u.setFechaRegistro(LocalDateTime.now());
+			u.setActivo(true);
 			u.setRol(Usuario.Rol.USER);
 			usuarioRepository.save(u);
 
