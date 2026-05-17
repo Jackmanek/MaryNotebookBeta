@@ -31,6 +31,8 @@ public class MaryNotebookApplication {
 			u.setFechaRegistro(LocalDateTime.now());
 			u.setActivo(true);
 			u.setRol(Usuario.Rol.USER);
+
+			System.out.printf("esto es: "+u.toString());
 			usuarioRepository.save(u);
 
 		};

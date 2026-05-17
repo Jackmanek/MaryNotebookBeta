@@ -24,7 +24,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         return org.springframework.security.core.userdetails.User.builder()
                 .username(usuario.getEmail())
                 .password(usuario.getPassword())
-                .roles(usuario.getRol().name()) // más adelante podrías meter roles reales desde la BD
+                .roles(usuario.getRol().name())
                 .disabled(!usuario.isActivo())
                 .build();
     }

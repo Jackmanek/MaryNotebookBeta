@@ -46,7 +46,7 @@ public class UsuarioService {
     private void enviarEmailActivacion(String email, String token) {
         SimpleMailMessage message = new SimpleMailMessage();
 
-        message.setFrom("marymemories@marymemories.es");
+        message.setFrom("age002@gmail.com");
         message.setTo(email);
         message.setSubject("Activación de cuenta - MaryMemories");
 
@@ -54,7 +54,7 @@ public class UsuarioService {
         // Si estás en local sería: http://localhost:8080/api/activate?token=
         // Si es en producción: https://marymemories.es
 
-        String urlActivacion = "https://www.marymemories.es/api/activate?token=" + token;
+        String urlActivacion = "http://localhost:8080/api/activate?token=" + token;
 
         message.setText("Haz clic aquí para activar tu cuenta: " + urlActivacion);
         mailSender.send(message);

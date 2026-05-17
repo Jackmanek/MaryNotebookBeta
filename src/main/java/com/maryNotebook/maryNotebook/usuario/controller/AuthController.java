@@ -59,12 +59,13 @@ public class AuthController {
     public String activar(@RequestParam String token) {
         boolean activado = usuarioService.activarCuenta(token);
 
-        String urlActivacion = "https://www.marymemories.es/api/activate?token=" + token;
+        String urlActivacion = "http://localhost:8080/api/activate?token=" + token;
+        String urlLogin = "http://localhost:8100/login";
 
         if(activado) {
             return "<html>" +
                     "<head>" +
-                    "  <meta http-equiv='refresh' content='5;url=" + urlActivacion + "' />" +
+                    "  <meta http-equiv='refresh' content='5;url=" + urlLogin + "' />" +
                     "  <style>" +
                     "    body { font-family: sans-serif; text-align: center; padding-top: 50px; }" +
                     "    .card { border: 1px solid #ddd; padding: 20px; display: inline-block; border-radius: 10px; }" +
@@ -74,7 +75,7 @@ public class AuthController {
                     "  <div class='card'>" +
                     "    <h1 style='color: #28a745;'>¡Cuenta activada con éxito!</h1>" +
                     "    <p>En 5 segundos serás redirigido automáticamente al inicio de sesión...</p>" +
-                    "    <p>Si no ocurre nada, <a href='" + urlActivacion + "'>haz clic aquí</a>.</p>" +
+                    "    <p>Si no ocurre nada, <a href='" + urlLogin + "'>haz clic aquí</a>.</p>" +
                     "  </div>" +
                     "</body>" +
                     "</html>";
