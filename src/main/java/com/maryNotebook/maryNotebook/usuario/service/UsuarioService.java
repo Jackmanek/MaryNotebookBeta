@@ -1,7 +1,9 @@
 package com.maryNotebook.maryNotebook.usuario.service;
 
+import com.maryNotebook.maryNotebook.usuario.entity.PasswordResetToken;
 import com.maryNotebook.maryNotebook.usuario.entity.Usuario;
 import com.maryNotebook.maryNotebook.usuario.entity.VerificationToken;
+import com.maryNotebook.maryNotebook.usuario.repository.PasswordResetTokenRepository;
 import com.maryNotebook.maryNotebook.usuario.repository.UsuarioRepository;
 import com.maryNotebook.maryNotebook.usuario.repository.VerificationTokenRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +26,7 @@ public class UsuarioService {
     private final PasswordEncoder passwordEncoder;
     private final VerificationTokenRepository verificationTokenRepository;
     private final JavaMailSender mailSender;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
 
 
     public Usuario registrarUsuario(Usuario usuario) {
@@ -91,6 +94,43 @@ public class UsuarioService {
             usuario.setActivo(!usuario.isActivo());
             return usuarioRepository.save(usuario);
         });
+    }
+
+    public void solicitarRecuperacion(String email) {
+        Usuario usuario = usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Email no encontrado"));
+
+        // Eliminar tokens anteriores del mismo usuario para evitar duplicados
+        passwordResetTokenRepository.deleteByUsuario(usuario);
+
+        String token = UUID.randomUUID().toString();
+        passwordResetTokenRepository.save(new PasswordResetToken(token, usuario));
+
+        enviarEmailRecuperacion(email, token);
+    }
+
+    private void enviarEmailRecuperacion(String email, String token) {
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setFrom("age002@gmail.com");
+        message.setTo(email);
+        message.setSubject("Recuperación de contraseña - MaryMemories");
+
+        String urlReset = "http://localhost:4200/reset-password?token=" + token;
+        message.setText("Haz clic aquí para restablecer tu contraseña: " + urlReset +
+                "\n\nEste enlace expira en 30 minutos.");
+        mailSender.send(message);
+    }
+
+    public boolean resetearPassword(String token, String nuevaPassword) {
+        return passwordResetTokenRepository.findByToken(token)
+                .filter(t -> t.getFechaExpiracion().isAfter(LocalDateTime.now()))
+                .map(t -> {
+                    Usuario usuario = t.getUsuario();
+                    usuario.setPassword(passwordEncoder.encode(nuevaPassword));
+                    usuarioRepository.save(usuario);
+                    passwordResetTokenRepository.delete(t); // invalidar token usado
+                    return true;
+                }).orElse(false);
     }
 
     public long contarUsuarios() {

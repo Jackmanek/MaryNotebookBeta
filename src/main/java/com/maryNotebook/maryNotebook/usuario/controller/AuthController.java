@@ -1,12 +1,15 @@
 package com.maryNotebook.maryNotebook.usuario.controller;
 
 import com.maryNotebook.maryNotebook.security.JwtUtil;
+import com.maryNotebook.maryNotebook.usuario.dto.ForgotPasswordDTO;
 import com.maryNotebook.maryNotebook.usuario.dto.RegistroUsuarioDTO;
+import com.maryNotebook.maryNotebook.usuario.dto.ResetPasswordDTO;
 import com.maryNotebook.maryNotebook.usuario.entity.Usuario;
 import com.maryNotebook.maryNotebook.usuario.repository.UsuarioRepository;
 import com.maryNotebook.maryNotebook.usuario.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -81,6 +84,30 @@ public class AuthController {
                     "</html>";
         }else {
             return "<h1>Error de activación</h1><p>El token es inválido o ya ha caducado.</p>";
+        }
+    }
+
+    // Paso 1 — el usuario manda su email
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordDTO dto) {
+        try {
+            usuarioService.solicitarRecuperacion(dto.getEmail());
+            // Respuesta genérica por seguridad — no confirmes si el email existe o no
+            return ResponseEntity.ok("Si el email existe, recibirás un enlace de recuperación.");
+        } catch (Exception e) {
+            // Misma respuesta aunque falle — evita enumerar emails válidos
+            return ResponseEntity.ok("Si el email existe, recibirás un enlace de recuperación.");
+        }
+    }
+
+    // Paso 2 — el usuario manda el token + nueva contraseña
+    @PostMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordDTO dto) {
+        boolean ok = usuarioService.resetearPassword(dto.getToken(), dto.getNuevaPassword());
+        if (ok) {
+            return ResponseEntity.ok("Contraseña actualizada correctamente.");
+        } else {
+            return ResponseEntity.badRequest().body("Token inválido o expirado.");
         }
     }
 }
