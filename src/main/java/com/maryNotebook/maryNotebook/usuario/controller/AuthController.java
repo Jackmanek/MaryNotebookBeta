@@ -62,8 +62,8 @@ public class AuthController {
     public String activar(@RequestParam String token) {
         boolean activado = usuarioService.activarCuenta(token);
 
-        String urlActivacion = "http://localhost:8080/api/activate?token=" + token;
-        String urlLogin = "http://localhost:8100/login";
+        String urlActivacion = "https://api.marymemories.es/api/activate?token=" + token;
+        String urlLogin = "https://api.marymemories.es/login";
 
         if(activado) {
             return "<html>" +
