@@ -57,7 +57,7 @@ public class UsuarioService {
         // Si estás en local sería: http://localhost:8080/api/activate?token=
         // Si es en producción: https://marymemories.es
 
-        String urlActivacion = "https://api.marymemories.es/api/activate?token=" + token;
+        String urlActivacion = "https://www.marymemories.es/api/activate?token=" + token;
 
         message.setText("Haz clic aquí para activar tu cuenta: " + urlActivacion);
         mailSender.send(message);
@@ -115,7 +115,7 @@ public class UsuarioService {
         message.setTo(email);
         message.setSubject("Recuperación de contraseña - MaryMemories");
 
-        String urlReset = "https://api.marymemories.es/api/reset-password?token=" + token;
+        String urlReset = "https://www.marymemories.es/api/reset-password?token=" + token;
         message.setText("Haz clic aquí para restablecer tu contraseña: " + urlReset +
                 "\n\nEste enlace expira en 30 minutos.");
         mailSender.send(message);
