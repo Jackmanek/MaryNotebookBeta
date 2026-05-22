@@ -7,7 +7,6 @@ import com.maryNotebook.maryNotebook.usuario.dto.ResetPasswordDTO;
 import com.maryNotebook.maryNotebook.usuario.entity.Usuario;
 import com.maryNotebook.maryNotebook.usuario.repository.UsuarioRepository;
 import com.maryNotebook.maryNotebook.usuario.service.UsuarioService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -64,6 +63,7 @@ public class AuthController {
 
         String urlActivacion = "https://www.marymemories.es/api/activate?token=" + token;
         String urlLogin = "https://www.marymemories.es/login";
+        //String urlLogin = "http://localhost:8100/login";
 
         if(activado) {
             return "<html>" +

@@ -14,7 +14,7 @@ public class FileStorageService {
     private final Path rootLocation;
 
     public FileStorageService(
-            @Value("${marynotebook.upload-dir:uploads}") String uploadDir
+            @Value("${file.upload-dir:/uploads}") String uploadDir
     ) {
         this.rootLocation = Paths.get(uploadDir);
     }
