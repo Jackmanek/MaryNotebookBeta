@@ -16,7 +16,7 @@ MaryNotebookBackend es una aplicación de backend construida con Spring Boot y J
 
 - Java 17
 - Maven 3.9.11 o posterior
-- Base de datos Oracle (para producción) o H2 Database (para desarrollo)
+- Base de datos Oracle Cloud free (para producción) o Docker ORACLE-DATA (para desarrollo)
 
 ## Configuración
 
