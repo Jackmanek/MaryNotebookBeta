@@ -1,8 +1,8 @@
-# MaryNotebook Backend
+# MaryNotebookBackend
 
 ## Descripción
 
-MaryNotebook es una aplicación de backend construida con Spring Boot y Java 17. Proporciona APIs RESTful para gestionar recuerdos, etiquetas y usuarios.
+MaryNotebookBackend es una aplicación de backend construida con Spring Boot y Java 17. Proporciona APIs RESTful para gestionar recuerdos, etiquetas y usuarios.
 
 ## Características
 
@@ -24,7 +24,7 @@ MaryNotebook es una aplicación de backend construida con Spring Boot y Java 17.
 
 1. Clona el repositorio:
    ```sh
-   git clone https://github.com/your-repo/MaryNotebook.git
+   git clone https://github.com/Jackmanek/MaryNotebookBackend.git
    cd MaryNotebook
    ```
 
@@ -39,8 +39,8 @@ MaryNotebook es una aplicación de backend construida con Spring Boot y Java 17.
 
 1. Clona el repositorio:
    ```sh
-   git clone https://github.com/your-repo/MaryNotebook.git
-   cd MaryNotebook
+   git clone https://github.com/Jackmanek/MaryNotebookBackend.git
+   cd MaryNotebookBackend
    ```
 
 2. Configura `application-prod.properties` para tu entorno de producción.
